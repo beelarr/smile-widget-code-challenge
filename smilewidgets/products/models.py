@@ -28,11 +28,7 @@ class ProductPrice(models.Model):
     date_start = models.DateField(null=False)
     date_end = models.DateField(null=False)
     price = models.PositiveIntegerField(default=0, help_text='Product price in cents')
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name='price'
-    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='price')
 
     def __str_(self):
         return self.product.name

@@ -22,7 +22,6 @@ def get_product_price(request):
         query_product_code = params.get('productCode')
         query_date = params.get('date')
         gift_card_code = params.get('giftCardCode') or 'giftCardCode'
-        print("FIRST", gift_card_code)
 
         try:
             date_format = datetime.strptime(query_date, '%b %d %Y').date()
@@ -32,24 +31,18 @@ def get_product_price(request):
                 'Oops!  That was not a valid date.  The format should be "sep 10 2018",  Try again...', status=400)
 
         product = get_object_or_404(Product, code=query_product_code)
-        low_price = product.price.filter(
-                                   date_start__lte=date_format,
-                                   date_end__gte=date_format
-                               ).order_by('price').first()
+        low_price = product.price.filter(date_start__lte=date_format, date_end__gte=date_format)\
+            .order_by('price').first()
 
         res = {'Price': low_price.formatted_amount}
 
         if gift_card_code:
             gift_card = get_object_or_404(GiftCard, code=gift_card_code)
-            print(gift_card.date_end)
             is_valid = gift_card.date_start < date_format < gift_card.date_end
-            print('VALID', is_valid, gift_card.date_start, gift_card.date_end, date_format)
 
             if is_valid:
-                print('ITS VALID')
                 gift_card_price = low_price.price - gift_card.amount or 0
 
-                print(gift_card_price)
                 if gift_card_price < 0:
                     res['Price'] = 'Your gift card has ${0:.2f} remaining'.format(abs(gift_card_price) / 100)
 
